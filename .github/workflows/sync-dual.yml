@@ -1,4 +1,4 @@
-name: Sync Beijing + Shanghai (Unicom/Telecom Sources)
+name: Sync Beijing + Shanghai (Unicom/Telecom Compatible)
 
 on:
   schedule:
@@ -48,7 +48,7 @@ jobs:
           # 兜底：联通/电信手动填充（2025 可用，非移动）
           if [ ! -s "playlist_shanghai.m3u" ]; then
             echo "#EXTM3U" > playlist_shanghai.m3u
-            echo "# 上海全频道（联通/电信源，2025-11 最新）" >> playlist_shanghai.m3u
+            echo "# 上海全频道（联通/电信源，2025-11 最新，非移动）" >> playlist_shanghai.m3u
             echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",东方卫视 HD (联通源)' >> playlist_shanghai.m3u
             echo 'http://121.24.98.226:8090/hls/38/index.m3u8' >> playlist_shanghai.m3u
             echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV新闻综合 HD' >> playlist_shanghai.m3u
@@ -57,10 +57,12 @@ jobs:
             echo 'http://121.24.98.226:8090/hls/40/index.m3u8' >> playlist_shanghai.m3u
             echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV影视 HD' >> playlist_shanghai.m3u
             echo 'http://121.24.98.226:8090/hls/41/index.m3u8' >> playlist_shanghai.m3u
-            echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV第一财经 HD' >> playlist_shanghai.m3u
-            echo 'http://121.24.98.226:8090/hls/42/index.m3u8' >> playlist_shanghai.m3u
             echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV少儿 HD' >> playlist_shanghai.m3u
             echo 'http://121.24.98.226:8090/hls/43/index.m3u8' >> playlist_shanghai.m3u
+            echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV第一财经 HD' >> playlist_shanghai.m3u
+            echo 'http://121.24.98.226:8090/hls/42/index.m3u8' >> playlist_shanghai.m3u
+            echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV纪实人文 HD' >> playlist_shanghai.m3u
+            echo 'http://39.135.138.58:18890/PLTV/88888888/224/3221226412/index.m3u8' >> playlist_shanghai.m3u
           fi
           git add playlist_shanghai.m3u
           git commit -m "Update Shanghai M3U (Unicom/Telecom)" || echo "No Shanghai changes"
