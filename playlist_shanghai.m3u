@@ -1,0 +1,12 @@
+#EXTM3U
+# 上海全频道（手动填充，2025-11 最新）
+#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",东方卫视 HD
+http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226409/index.m3u8
+#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV新闻综合 HD
+http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226410/index.m3u8
+#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV体育 HD
+http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226414/index.m3u8
+#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV影视 HD
+http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226416/index.m3u8
+#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV第一财经 HD
+http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226426/index.m3u8
