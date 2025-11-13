@@ -23,29 +23,43 @@ jobs:
           git fetch beijing main
           git checkout main
           git merge beijing/main --allow-unrelated-histories -m "Merge Beijing source" || echo "Beijing no changes"
-          cp beijing/playlist.m3u playlist_beijing.m3u 2>/dev/null || echo "Beijing M3U not found"
-          git add playlist_beijing.m3u
-          git commit -m "Update Beijing M3U" || echo "No Beijing changes"
+          # 复制原仓库的 iptv.m3u 为 playlist_beijing.m3u
+          if [ -f "iptv.m3u" ]; then
+            cp iptv.m3u playlist_beijing.m3u
+            git add playlist_beijing.m3u
+            git commit -m "Update Beijing M3U" || echo "No Beijing changes"
+          else
+            echo "Beijing iptv.m3u not found"
+          fi
 
-      # 同步上海官方源（从 kaige-cai/live 拉上海频道）
+      # 同步上海官方源（从 kaige-cai/live 拉取并过滤）
       - name: Sync Shanghai (SHTV)
         run: |
-          curl -s https://raw.githubusercontent.com/kaige-cai/live/main/tv.m3u8 -o shanghai_raw.m3u8
-          grep -i -E "(东方卫视|SHTV|上海)" shanghai_raw.m3u8 > playlist_shanghai.m3u || echo "No Shanghai channels"
-          git add playlist_shanghai.m3u
-          git commit -m "Update Shanghai M3U" || echo "No Shanghai changes"
+          curl -s "https://raw.githubusercontent.com/kaige-cai/live/main/tv.m3u8" -o shanghai_raw.m3u8 || echo "Failed to fetch Shanghai source"
+          if [ -f "shanghai_raw.m3u8" ]; then
+            grep -i -E "(东方卫视|SHTV|上海新闻|上海纪实|上海体育|上海影视|上海少儿|上海游戏|上海动漫|上海生活|上海文广|上海演艺|第一财经)" shanghai_raw.m3u8 > playlist_shanghai.m3u || echo "No Shanghai channels found"
+            git add playlist_shanghai.m3u
+            git commit -m "Update Shanghai M3U" || echo "No Shanghai changes"
+          fi
 
       # 合并生成 all.m3u
       - name: Generate Combined M3U
         run: |
           echo "#EXTM3U" > playlist_all.m3u
           echo "# 北京 + 上海全频道（自动同步）" >> playlist_all.m3u
-          cat playlist_beijing.m3u playlist_shanghai.m3u >> playlist_all.m3u 2>/dev/null || echo "No sources"
+          if [ -f "playlist_beijing.m3u" ]; then cat playlist_beijing.m3u >> playlist_all.m3u; fi
+          if [ -f "playlist_shanghai.m3u" ]; then cat playlist_shanghai.m3u >> playlist_all.m3u; fi
           echo "# 更新于 $(date '+%Y-%m-%d %H:%M')" >> playlist_all.m3u
           git add playlist_all.m3u
           git commit -m "Generate combined M3U" || echo "No changes"
 
       # 推送到你的仓库
       - name: Push Updates
+        run: git push origin main
+
+      # 清理
+      - name: Cleanup
+        if: always()
         run: |
-          git push origin main
+          git remote remove beijing || true
+          rm -f shanghai_raw.m3u8 iptv.m3u
