@@ -32,14 +32,37 @@ jobs:
             echo "Beijing iptv.m3u not found"
           fi
 
-      # 同步上海官方源（从 kaige-cai/live 拉取并过滤）
+      # 同步上海官方源（换新源：hujingguang + suxuang）
       - name: Sync Shanghai (SHTV)
         run: |
-          curl -s "https://raw.githubusercontent.com/kaige-cai/live/main/tv.m3u8" -o shanghai_raw.m3u8 || echo "Failed to fetch Shanghai source"
-          if [ -f "shanghai_raw.m3u8" ]; then
-            grep -i -E "(东方卫视|SHTV|上海新闻|上海纪实|上海体育|上海影视|上海少儿|上海游戏|上海动漫|上海生活|上海文广|上海演艺|第一财经)" shanghai_raw.m3u8 > playlist_shanghai.m3u || echo "No Shanghai channels found"
+          # 拉取主源 hujingguang/ChinaIPTV（实时更新）
+          curl -s "https://raw.githubusercontent.com/hujingguang/ChinaIPTV/main/cnTV_AutoUpdate.m3u8" -o shanghai_raw.m3u8 || echo "Failed to fetch hujingguang"
+          if [ ! -s "shanghai_raw.m3u8" ]; then
+            # 备用 suxuang/myIPTV
+            curl -s "https://raw.githubusercontent.com/suxuang/myIPTV/main/直播源.m3u8" -o shanghai_raw.m3u8 || echo "Failed to fetch suxuang"
+          fi
+          if [ -s "shanghai_raw.m3u8" ]; then
+            # 过滤上海频道（关键词优化）
+            grep -i -E "(东方卫视|上海卫视|SHTV|上海新闻|上海纪实|上海体育|上海影视|上海少儿|上海游戏|上海动漫|上海生活|上海文广|上海演艺|第一财经)" shanghai_raw.m3u8 > playlist_shanghai.m3u || echo "No Shanghai channels found in grep"
+            # 如果 grep 空，添加手动填充（2025 可用源）
+            if [ ! -s "playlist_shanghai.m3u" ]; then
+              echo "#EXTM3U" > playlist_shanghai.m3u
+              echo "# 上海全频道（手动填充，2025-11 最新）" >> playlist_shanghai.m3u
+              echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",东方卫视 HD' >> playlist_shanghai.m3u
+              echo 'http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226409/index.m3u8' >> playlist_shanghai.m3u
+              echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV新闻综合 HD' >> playlist_shanghai.m3u
+              echo 'http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226410/index.m3u8' >> playlist_shanghai.m3u
+              echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV体育 HD' >> playlist_shanghai.m3u
+              echo 'http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226414/index.m3u8' >> playlist_shanghai.m3u
+              echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV影视 HD' >> playlist_shanghai.m3u
+              echo 'http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226416/index.m3u8' >> playlist_shanghai.m3u
+              echo '#EXTINF:-1 tvg-logo="https://www.smg.cn/favicon.ico",SHTV第一财经 HD' >> playlist_shanghai.m3u
+              echo 'http://39.134.24.166/dbiptv.sn.chinamobile.com/PLTV/88888888/224/3221226426/index.m3u8' >> playlist_shanghai.m3u
+            fi
             git add playlist_shanghai.m3u
             git commit -m "Update Shanghai M3U" || echo "No Shanghai changes"
+          else
+            echo "Shanghai raw file empty"
           fi
 
       # 合并生成 all.m3u
